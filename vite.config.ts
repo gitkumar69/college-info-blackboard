@@ -19,9 +19,12 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  optimizeDeps: {
+    include: ["@supabase/supabase-js"], // Ensure Supabase is pre-bundled
+  },
   build: {
     rollupOptions: {
-      external: ["@supabase/supabase-js"], // Externalize the Supabase module
+      external: ["@supabase/supabase-js"], // Externalize Supabase
     },
   },
 }));
