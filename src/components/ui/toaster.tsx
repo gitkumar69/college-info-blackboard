@@ -8,8 +8,8 @@ import {
   ToastViewport,
 } from "@/components/ui/toast"
 
-export function Toaster() {
-  const { toasts } = useToast()
+export default function Toaster() {
+  const { toasts } = useToast();
 
   return (
     <ToastProvider>
@@ -25,9 +25,9 @@ export function Toaster() {
             {action}
             <ToastClose />
           </Toast>
-        )
+        );
       })}
       <ToastViewport />
     </ToastProvider>
-  )
+  );
 }
