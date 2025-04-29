@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
@@ -12,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { CalendarIcon, CheckIcon, XIcon } from "lucide-react";
+import { supabase } from "@/supabaseClient";
 
 const ManageAttendance = () => {
   const { user } = useAuth();
@@ -59,22 +59,32 @@ const ManageAttendance = () => {
   };
 
   // Save attendance
-  const saveAttendance = () => {
+  const saveAttendance = async () => {
     if (!selectedCourse || !selectedDate) {
       toast.error("Please select a course and date");
       return;
     }
 
-    attendanceData.forEach(data => {
-      addAttendance({
-        studentId: data.studentId,
-        courseCode: selectedCourse,
+    try {
+      const attendanceRecords = attendanceData.map((data) => ({
+        student_id: data.studentId,
+        class_id: selectedCourse,
         date: selectedDate,
-        present: data.present
-      });
-    });
+        status: data.present ? "Present" : "Absent",
+        faculty_id: user?.id,
+      }));
 
-    toast.success("Attendance saved successfully");
+      const { error } = await supabase.from("attendance").insert(attendanceRecords);
+
+      if (error) {
+        toast.error("Error saving attendance");
+      } else {
+        toast.success("Attendance saved successfully");
+      }
+    } catch (error) {
+      console.error("Error saving attendance:", error);
+      toast.error("An error occurred");
+    }
   };
 
   // Get students for viewing

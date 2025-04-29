@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAuth, UserRole } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/supabaseClient";
+import { getUserRole } from "@/hooks/useUserRole";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -31,19 +32,24 @@ const Login = () => {
 
     setLoading(true);
     try {
-      const success = await login(email, password, activeTab);
-      if (success) {
-        toast({
-          title: "Success",
-          description: "Logged in successfully",
-        });
-        navigate("/dashboard");
-      } else {
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("email", email)
+        .eq("password", password);
+
+      if (error || data.length === 0) {
         toast({
           title: "Error",
           description: "Invalid credentials",
           variant: "destructive",
         });
+      } else {
+        toast({
+          title: "Success",
+          description: "Logged in successfully",
+        });
+        handleUserRole(data[0].id);
       }
     } catch (error) {
       toast({
@@ -53,6 +59,24 @@ const Login = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleUserRole = async (userId: string) => {
+    const { data, error } = await getUserRole(userId);
+
+    if (error || !data) {
+      console.error("Error determining user role:", error);
+      return;
+    }
+
+    const { role } = data;
+    if (role === "student") {
+      navigate("/dashboard");
+    } else if (role === "faculty") {
+      navigate("/faculty-dashboard");
+    } else if (role === "hod") {
+      navigate("/hod-dashboard");
     }
   };
 

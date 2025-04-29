@@ -1,11 +1,25 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { CalendarIcon, BookOpenIcon, AwardIcon, UserIcon } from "lucide-react";
+import { getStudents } from "@/hooks/useStudents";
+import { useState, useEffect } from "react";
 
 const StudentDashboard = () => {
   const { user } = useAuth();
+  const [students, setStudents] = useState([]);
+
+  useEffect(() => {
+    const fetchStudents = async () => {
+      const { data, error } = await getStudents();
+      if (!error) {
+        setStudents(data);
+      }
+    };
+
+    fetchStudents();
+  }, []);
+
   const { getStudentCourses, getStudentMarks, getCourseAttendedHours, getCourseTotalHours } = useData();
 
   // Find student in mock data

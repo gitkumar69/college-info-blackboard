@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -31,22 +30,9 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Navigate to="/login" replace />} />
               <Route path="/login" element={<Login />} />
-              
-              <Route path="/" element={<DashboardLayout />}>
-                {/* Student Routes */}
-                <Route path="/dashboard" element={<StudentDashboard />} />
-                <Route path="/attendance" element={<StudentAttendance />} />
-                <Route path="/marks" element={<StudentMarks />} />
-                
-                {/* Faculty and HOD Routes */}
-                <Route path="/manage-attendance" element={<ManageAttendance />} />
-                <Route path="/manage-marks" element={<ManageMarks />} />
-                
-                {/* HOD-only Routes */}
-                <Route path="/analysis" element={<DepartmentAnalysis />} />
-                <Route path="/manage-students" element={<ManageStudents />} />
-              </Route>
-              
+              <Route path="/dashboard" element={<StudentDashboard />} />
+              <Route path="/faculty-dashboard" element={<FacultyDashboard />} />
+              <Route path="/hod-dashboard" element={<DepartmentAnalysis />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

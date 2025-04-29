@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useData } from "@/contexts/DataContext";
@@ -10,14 +9,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { supabase } from "@/supabaseClient";
 
 const ManageMarks = () => {
   const { user } = useAuth();
   const { 
     getFacultyCourses, 
     getStudentsByCourse, 
-    addMark, 
-    getStudentMarks,
+    getStudentMarks, // Ensure this is included
     courses
   } = useData();
   const { toast } = useToast();
@@ -28,6 +27,7 @@ const ManageMarks = () => {
   const [selectedCourse, setSelectedCourse] = useState("");
   const [marksData, setMarksData] = useState<{ studentId: string; marks: number }[]>([]);
   const [viewCourse, setViewCourse] = useState("");
+  const [loading, setLoading] = useState(false);
 
   // Get courses based on role
   const availableCourses = isHod ? courses : (facultyId ? getFacultyCourses(facultyId) : []);
@@ -49,6 +49,46 @@ const ManageMarks = () => {
     setMarksData(existingMarks);
   };
 
+  // Fetch marks for a specific course
+  const fetchMarks = async () => {
+    if (!selectedCourse) {
+      toast({
+        title: "Error",
+        description: "Please select a course",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("internal_marks")
+        .select("*")
+        .eq("course_id", selectedCourse);
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Error fetching marks",
+          variant: "destructive",
+        });
+        console.error("Error fetching marks:", error);
+      } else {
+        setMarksData(data);
+      }
+    } catch (error) {
+      console.error("Error fetching marks:", error);
+      toast({
+        title: "Error",
+        description: "An error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Update mark for a student
   const updateMark = (studentId: string, marks: number) => {
     // Validate marks
@@ -63,28 +103,50 @@ const ManageMarks = () => {
   };
 
   // Save marks
-  const saveMarks = () => {
+  const saveMarks = async () => {
     if (!selectedCourse) {
       toast({
         title: "Error",
         description: "Please select a course",
-        variant: "destructive"
+        variant: "destructive", // Specify the variant for an error
       });
       return;
     }
 
-    marksData.forEach(data => {
-      addMark({
-        studentId: data.studentId,
-        courseCode: selectedCourse,
-        marks: data.marks
-      });
-    });
+    try {
+      const marksRecords = marksData.map((data) => ({
+        student_id: data.studentId,
+        course_id: selectedCourse,
+        marks: data.marks,
+        faculty_id: user?.id,
+      }));
 
-    toast({
-      title: "Success",
-      description: "Marks saved successfully"
-    });
+      const { error } = await supabase.from("internal_marks").upsert(marksRecords, {
+        onConflict: ["student_id", "course_id"],
+      });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Error saving marks",
+          variant: "destructive", // Specify the variant for an error
+        });
+        console.error("Error saving marks:", error);
+      } else {
+        toast({
+          title: "Success",
+          description: "Marks saved successfully",
+          variant: "default", // Use the default variant for success
+        });
+      }
+    } catch (error) {
+      console.error("Error saving marks:", error);
+      toast({
+        title: "Error",
+        description: "An error occurred",
+        variant: "destructive", // Specify the variant for an error
+      });
+    }
   };
 
   // Get data for marks analysis
