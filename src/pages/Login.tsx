@@ -118,7 +118,7 @@ const Login = () => {
           <CardFooter className="flex justify-center text-sm">
             <div className="text-muted-foreground">
               <p>Demo Accounts:</p>
-              <p>Student: student@example.com</p>
+              <p>Student: student@gmail.com</p>
               <p>Faculty: faculty@example.com</p>
               <p>HOD: hod@example.com</p>
               <p>(Password: "password" for all accounts)</p>
