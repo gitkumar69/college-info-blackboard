@@ -22,5 +22,14 @@
     <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
     <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
     <script type="module" src="/src/main.tsx"></script>
+    <script type="module">
+      import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+      const supabaseUrl = 'https://bgolgpoqtimapvtmkize.supabase.co';
+      const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJnb2xncG9xdGltYXB2dG1raXplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDM4NDc3NzUsImV4cCI6MjA1OTQyMzc3NX0.yzFditn0xPknDFUBR0hUMvUKTq9wxov7WJRZg4hos2Q';
+      const supabase = createClient(supabaseUrl, supabaseKey);
+
+      console.log('Supabase client initialized:', supabase);
+    </script>
   </body>
 </html>
